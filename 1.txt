@@ -1,5 +1,3 @@
-Ticket # 1:
-
 Dear Support,
 
 We’re starting to use GCP’s SCC (Security Command Center) & I found out that there is (potentially) a documentation bug regarding the latency of monitoring_findings [1] (fyi, monitoring_findings are scanned and reported by Security Health Analytics).
@@ -7,11 +5,12 @@ We’re starting to use GCP’s SCC (Security Command Center) & I found out that
 As documented here [2], “most detections run in real time against asset configuration changes (exceptions are detailed in Security Health Analytics Detection Latency [3]).”
 
 Test:
-I triggered the ‘CUSTOM_ROLE_NOT_MONITORED’ findings [1] by simply creating a custom role in a test GCP project.
+I created a log-based metric and an alerting policy (see attachment*) in a test project.
+I triggered the ‘CUSTOM_ROLE_NOT_MONITORED’ findings [1] by creating a custom role in the same test project.
 Expected behaviour:
-State of ‘CUSTOM_ROLE_NOT_MONITORED’ finding (in SCC) to change to ACTIVE in real-time; since it's not in the list of exceptions [3].
+State of ‘CUSTOM_ROLE_NOT_MONITORED’ finding (in SCC) to change to INACTIVE in real-time; since it's not in the list of exceptions [3].
 Actual behaviour:
-The ‘CUSTOM_ROLE_NOT_MONITORED’ finding was NOT fired at realtime and was fired at 8AM EST (hours later).
+The ‘CUSTOM_ROLE_NOT_MONITORED’ finding was NOT fired at realtime and was fired at 8AM EST.
 After doing some more tests, I’m able to confirm that the ‘CUSTOM_ROLE_NOT_MONITORED’ finding is scanned/reported every 12 hours (once @ 8AM EST & the other @ 8PM EST) and is NOT scanned in real-time.
 Ask:
 Can you confirm if monitoring_findings [1] scans are supposed to execute in realtime or in 12-hours intervals. If the latter is true, can you file for a documentation bug to add monitoring-findings to the list of exceptions [2].
@@ -23,3 +22,4 @@ AM
 [2] https://cloud.google.com/security-command-center/docs/concepts-scan-latency-overview#findings
 [3] https://cloud.google.com/security-command-center/docs/concepts-scan-latency-overview#detection_latency
 
+*resource.type="iam_role" AND protoPayload.methodName="google.iam.admin.v1.CreateRole" OR protoPayload.methodName="google.iam.admin.v1.DeleteRole" OR protoPayload.methodName="google.iam.admin.v1.UpdateRole"
